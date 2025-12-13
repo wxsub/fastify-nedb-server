@@ -2,7 +2,7 @@ import Fastify from 'fastify'
 import appPlugin, { options as appOptions } from './app.js'
 
 async function start () {
-  const fastify = Fastify({ logger: { level: 'info' } })
+  const fastify = Fastify({ logger: { level: 'warn' } })
 
   await fastify.register(appPlugin, appOptions || {})
 
@@ -11,7 +11,6 @@ async function start () {
 
   try {
     await fastify.listen({ port, host })
-    fastify.log.info(`Server listening on ${host}:${port}`)
   } catch (err) {
     fastify.log.error(err)
     process.exit(1)
