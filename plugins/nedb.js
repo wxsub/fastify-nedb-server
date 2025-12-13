@@ -25,7 +25,82 @@ export default fp(async function (fastify, opts) {
     (opts && opts.autocompactionInterval) || 300000
   )
 
-  fastify.decorate('db', db)
+  const buildCursor = (query = {}, options = {}) => {
+    let cursor = db.find(query)
+    if (options.sort) cursor = cursor.sort(options.sort)
+    if (typeof options.skip === 'number') cursor = cursor.skip(options.skip)
+    if (typeof options.limit === 'number') cursor = cursor.limit(options.limit)
+    if (options.projection) cursor = cursor.projection(options.projection)
+    return cursor
+  }
+
+  const api = {
+    insert: (doc) =>
+      new Promise((resolve, reject) => {
+        db.insert(doc, (err, newDoc) => {
+          if (err) reject(err)
+          else resolve(newDoc)
+        })
+      }),
+    find: (query = {}, options = {}) =>
+      new Promise((resolve, reject) => {
+        buildCursor(query, options).exec((err, docs) => {
+          if (err) reject(err)
+          else resolve(docs)
+        })
+      }),
+    findOne: (query = {}, options = {}) =>
+      new Promise((resolve, reject) => {
+        db.findOne(query, options, (err, doc) => {
+          if (err) reject(err)
+          else resolve(doc)
+        })
+      }),
+    update: (query, update, options = {}) =>
+      new Promise((resolve, reject) => {
+        db.update(query, update, options, (err, numAffected, affectedDocs, upsert) => {
+          if (err) reject(err)
+          else {
+            if (options && options.returnUpdatedDocs) {
+              resolve({ numAffected, affectedDocs, upsert })
+            } else {
+              resolve({ numAffected })
+            }
+          }
+        })
+      }),
+    remove: (query, options = {}) =>
+      new Promise((resolve, reject) => {
+        db.remove(query, options, (err, numRemoved) => {
+          if (err) reject(err)
+          else resolve({ numRemoved })
+        })
+      }),
+    count: (query = {}) =>
+      new Promise((resolve, reject) => {
+        db.count(query, (err, count) => {
+          if (err) reject(err)
+          else resolve(count)
+        })
+      }),
+    ensureIndex: (options) =>
+      new Promise((resolve, reject) => {
+        db.ensureIndex(options, (err) => {
+          if (err) reject(err)
+          else resolve(true)
+        })
+      }),
+    removeIndex: (fieldName) =>
+      new Promise((resolve, reject) => {
+        db.removeIndex(fieldName, (err) => {
+          if (err) reject(err)
+          else resolve(true)
+        })
+      }),
+    raw: db
+  }
+
+  fastify.decorate('db', api)
 
   fastify.addHook('onClose', (instance, done) => {
     db.persistence.stopAutocompaction()
