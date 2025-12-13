@@ -1,5 +1,5 @@
 export default async function (fastify, opts) {
   fastify.get('/', async function (request, reply) {
-    return reply.sendSuccess({ root: true })
+    return reply.success({ root: true })
   })
 }

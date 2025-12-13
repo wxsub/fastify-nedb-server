@@ -4,7 +4,7 @@ export default fp(async function (fastify, opts) {
   const successCode = (opts && opts.successCode) ?? 0
   const defaultSuccessMessage = (opts && opts.defaultSuccessMessage) ?? 'OK'
 
-  fastify.decorateReply('sendSuccess', function (data, message = defaultSuccessMessage) {
+  fastify.decorateReply('success', function (data, message = defaultSuccessMessage) {
     const payload = {
       code: successCode,
       message,
@@ -16,7 +16,7 @@ export default fp(async function (fastify, opts) {
     return this.send(payload)
   })
 
-  fastify.decorateReply('sendError', function (code, message, details) {
+  fastify.decorateReply('error', function (code, message, details) {
     const payload = {
       code: typeof code === 'number' ? code : 1,
       message: message || 'Error',
