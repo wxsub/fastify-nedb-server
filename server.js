@@ -1,13 +1,10 @@
-'use strict'
-
-const Fastify = require('fastify')
-const appPlugin = require('./app')
+import Fastify from 'fastify'
+import appPlugin, { options as appOptions } from './app.js'
 
 async function start () {
   const fastify = Fastify({ logger: { level: 'info' } })
 
-  // Register the application plugin exported by app.js
-  await fastify.register(appPlugin, appPlugin.options || {})
+  await fastify.register(appPlugin, appOptions || {})
 
   const port = process.env.PORT ? Number(process.env.PORT) : 3009
   const host = process.env.HOST || '0.0.0.0'
