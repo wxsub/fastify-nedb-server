@@ -8,7 +8,6 @@ export default async function (fastify, opts) {
       if (id) {
         const db = await fastify.db.findOne({ _id: id })
         if (db?._id) {
-          console.log(id)
           const doc = await fastify.db.update({ _id: id }, raw)
           return reply.success(doc, 'update success！')
         } else {

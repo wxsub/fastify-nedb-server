@@ -24,6 +24,7 @@ export default fp(async function (fastify, opts) {
   db.persistence.setAutocompactionInterval(
     (opts && opts.autocompactionInterval) || 300000
   )
+  const compactOnUpdate = (opts && opts.compactOnUpdate) ?? true
 
   const buildCursor = (query = {}, options = {}) => {
     let cursor = db.find(query)
@@ -61,6 +62,9 @@ export default fp(async function (fastify, opts) {
         db.update(query, update, options, (err, numAffected, affectedDocs, upsert) => {
           if (err) reject(err)
           else {
+            if (compactOnUpdate && numAffected > 0) {
+              db.persistence.compactDatafile()
+            }
             if (options && options.returnUpdatedDocs) {
               resolve({ numAffected, affectedDocs, upsert })
             } else {
