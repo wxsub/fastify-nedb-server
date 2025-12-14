@@ -59,3 +59,6 @@ profile*
  
 # local NeDB data files
 db/
+
+# Frontend administration system 
+admin/
