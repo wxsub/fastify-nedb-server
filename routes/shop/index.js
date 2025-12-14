@@ -46,6 +46,39 @@ export default async function (fastify, opts) {
     }
   })
 
+  fastify.get('/list', async function (request, reply) {
+    try {
+      const { page = 1, pageSize = 10, sort = 'updatedAt', order = 'desc' } = request.query || {}
+      const p = Math.max(1, Number(page) || 1)
+      const ps = Math.min(100, Math.max(1, Number(pageSize) || 10))
+      const skip = (p - 1) * ps
+      const sortOrder = order === 'asc' ? 1 : -1
+      const sortObj = { [sort]: sortOrder }
+      const [list, total] = await Promise.all([
+        fastify.db.find({}, { sort: sortObj, skip, limit: ps }),
+        fastify.db.count({})
+      ])
+      const data = list.map(item => {
+        const { _id, createdAt, updatedAt, ...raw } = item
+        return {
+          id: _id,
+          createdAt: moment(createdAt).format('LLLL'),
+          updatedAt: moment(updatedAt).format('LLLL'),
+          ...raw
+        }
+      })
+      return reply.success({
+        list: data,
+        page: p,
+        pageSize: ps,
+        total,
+        pages: Math.max(1, Math.ceil(total / ps))
+      }, 'success')
+    } catch (error) {
+      return reply.error(error, 'error')
+    }
+  })
+
   fastify.delete('/', async function (request, reply) {
     try {
       const { id } = request.query || {}
