@@ -1,18 +1,18 @@
 {
-  "name": "core",
+  "name": "fastify-nedb-server",
   "version": "1.0.0",
-  "description": "This project was bootstrapped with Fastify-CLI.",
+  "description": "This is a backend service project template using Fastify, a popular framework in the Node.js community, combined with the local database tool NeDB. This template allows you to quickly build server-side projects based on Fastify.",
   "type": "module",
   "main": "app.js",
   "directories": {
-    "test": "test"
+    "plugins": "plugins",
+    "routes": "routes"
   },
   "scripts": {
-    "test": "node --test test/**/*.test.js",
     "start": "node server.js",
     "dev": "node --watch --watch-path routes --watch-path plugins server.js"
   },
-  "keywords": [],
+  "keywords": ["nodejs", "http-server", "nedb", "fastify"],
   "author": "wxsub system lnc.",
   "license": "ISC",
   "dependencies": {
