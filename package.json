@@ -23,5 +23,8 @@
     "fastify-plugin": "^5.0.0",
     "moment": "^2.30.1",
     "nedb": "^1.8.0"
+  },
+  "imports": {
+    "#util/*": "./utils/*"
   }
 }
