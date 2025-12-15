@@ -14,7 +14,7 @@ class HttpClient {
     return HttpClient.#instance
   }
   async request(method, url, options = {}) {
-    const { params, headers, body, timeout } = options
+    const { params, headers, body, timeout, responseType } = options
     let finalUrl = typeof url === 'string' ? url : url.toString()
     if (params && typeof params === 'object') {
       const qs = new URLSearchParams(params).toString()
@@ -39,7 +39,13 @@ class HttpClient {
     })
     if (timer) clearTimeout(timer)
     const ct = res.headers.get('content-type') || ''
-    const data = ct.includes('application/json') ? await res.json() : await res.text()
+    let data
+    if (responseType === 'arraybuffer') {
+      const ab = await res.arrayBuffer()
+      data = Buffer.from(ab)
+    } else {
+      data = ct.includes('application/json') ? await res.json() : await res.text()
+    }
     const response = {
       data,
       status: res.status,
