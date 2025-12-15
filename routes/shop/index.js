@@ -28,7 +28,13 @@ export default async function (fastify, opts) {
       if (id) {
         const db = await fastify.db.findOne({ _id: id })
         if (db) {
-          const { _id, createdAt, updatedAt, ...raw } = db
+          const currentMonth = moment().format('YYYY-MM')
+          const update =
+            db.month === currentMonth
+              ? { $inc: { times: 1, monthTimes: 1 } }
+              : { $set: { month: currentMonth, monthTimes: 1 }, $inc: { times: 1 } }
+          const { affectedDocs } = await fastify.db.update({ _id: id }, update, { returnUpdatedDocs: true })
+          const { _id, createdAt, updatedAt, ...raw } = affectedDocs
           return reply.success({
             id: _id,
             createdAt: moment(createdAt).format('LLLL'),
